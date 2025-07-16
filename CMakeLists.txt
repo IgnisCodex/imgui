@@ -1,19 +1,21 @@
 cmake_minimum_required(VERSION 3.15)
-project(imgui LANGUAGES CXX)
+project(ImGui LANGUAGES CXX)
 
-# Only the core ImGui files, no backends (bgfx handles rendering)
-set(IMGUI_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR})
-
-add_library(imgui STATIC
-    ${IMGUI_SRC_DIR}/imgui.cpp
-    ${IMGUI_SRC_DIR}/imgui_demo.cpp
-    ${IMGUI_SRC_DIR}/imgui_draw.cpp
-    ${IMGUI_SRC_DIR}/imgui_tables.cpp
-    ${IMGUI_SRC_DIR}/imgui_widgets.cpp
+add_library(ImGui STATIC
+    imgui.cpp
+    imgui_draw.cpp
+    imgui_widgets.cpp
+    imgui_demo.cpp
+    imgui.h
+    imgui_internal.h
+    imconfig.h
+    imstb_rectpack.h
+    imstb_textedit.h
+    imstb_truetype.h
 )
 
-target_include_directories(imgui PUBLIC
-    ${IMGUI_SRC_DIR}
+target_include_directories(ImGui PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_compile_features(imgui PUBLIC cxx_std_11)
+target_compile_features(ImGui PUBLIC cxx_std_17)
