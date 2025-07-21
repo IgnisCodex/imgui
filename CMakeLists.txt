@@ -13,6 +13,9 @@ add_library(imgui STATIC
     imstb_textedit.h
     imstb_truetype.h
     imgui_widgets.cpp
+
+    backends/imgui_impl_sdl3.cpp
+    backends/imgui_impl_opengl3.cpp
 )
 
 target_include_directories(imgui PUBLIC
