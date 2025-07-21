@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 project(imgui LANGUAGES CXX)
 
-find_library(SDL3::SDL3 REQUIRED)
+find_library(SDL3 REQUIRED)
 
 add_library(imgui STATIC
     imconfig.h
@@ -23,4 +23,4 @@ target_include_directories(imgui PUBLIC
 )
 
 target_compile_features(imgui PUBLIC cxx_std_17)
-target_link_libraries(imgui PUBLIC SDL3::SDL3)
+target_link_libraries(imgui PUBLIC SDL3)
