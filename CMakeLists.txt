@@ -15,6 +15,7 @@ add_library(imgui STATIC
     imgui_widgets.cpp
 
     backends/imgui_impl_sdl3.cpp
+    backends/imgui_impl_glfw.cpp
     backends/imgui_impl_opengl3.cpp
 )
 
