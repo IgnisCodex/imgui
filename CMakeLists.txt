@@ -26,3 +26,4 @@ target_include_directories(imgui PUBLIC
 
 target_compile_features(imgui PUBLIC cxx_std_17)
 target_link_libraries(imgui PUBLIC SDL3::SDL3)
+target_link_libraries(imgui PUBLIC glfw)
