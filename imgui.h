@@ -823,6 +823,11 @@ namespace ImGui
     IMGUI_API bool          MenuItem(const char* label, const char* shortcut = NULL, bool selected = false, bool enabled = true);  // return true when activated.
     IMGUI_API bool          MenuItem(const char* label, const char* shortcut, bool* p_selected, bool enabled = true);              // return true when activated + toggle (*p_selected) if p_selected != NULL
 
+
+    IMGUI_API bool          MenuItemImage(const char* label, ImTextureRef icon, const ImVec2 icon_size, const char* shortcut = NULL, bool selected = false, bool enabled = true, const ImVec2& uv0 = ImVec2(0, 0), const ImVec2& uv1 = ImVec2(1, 1), const ImVec4& tint = ImVec4(1, 1, 1, 1));
+    IMGUI_API bool          MenuItemImage(const char* label, ImTextureRef icon, const ImVec2 icon_size, const char* shortcut, bool* p_selected, bool enabled = true, const ImVec2& uv0 = ImVec2(0, 0), const ImVec2& uv1 = ImVec2(1, 1), const ImVec4& tint = ImVec4(1, 1, 1, 1));
+
+
     // Tooltips
     // - Tooltips are windows following the mouse. They do not take focus away.
     // - A tooltip window can contain items of any types.

@@ -9521,6 +9521,103 @@ bool ImGui::MenuItemEx(const char* label, const char* icon, const char* shortcut
     return pressed;
 }
 
+
+
+
+// CUSTOM
+
+
+bool ImGui::MenuItemImageEx(const char* label, ImTextureRef icon, const ImVec2& icon_size, const char* shortcut, bool selected, bool enabled, const ImVec2& uv0, const ImVec2& uv1, const ImVec4& tint_col) {
+    ImGuiWindow* window = GetCurrentWindow();
+    if (window->SkipItems)
+        return false;
+
+    ImGuiContext& g = *GImGui;
+    ImGuiStyle& style = g.Style;
+    ImVec2 pos = window->DC.CursorPos;
+    ImVec2 label_size = CalcTextSize(label, NULL, true);
+
+    // See BeginMenuEx() for comments about this.
+    const bool menuset_is_open = IsRootOfOpenMenuSet();
+    if (menuset_is_open)
+        PushItemFlag(ImGuiItemFlags_NoWindowHoverableCheck, true);
+
+    // We've been using the equivalent of ImGuiSelectableFlags_SetNavIdOnHover on all Selectable() since early Nav system days (commit 43ee5d73),
+    // but I am unsure whether this should be kept at all. For now moved it to be an opt-in feature used by menus only.
+    bool pressed;
+    PushID(label);
+    if (!enabled)
+        BeginDisabled();
+
+    // We use ImGuiSelectableFlags_NoSetKeyOwner to allow down on one menu item, move, up on another.
+    const ImGuiSelectableFlags selectable_flags = ImGuiSelectableFlags_SelectOnRelease | ImGuiSelectableFlags_NoSetKeyOwner | ImGuiSelectableFlags_SetNavIdOnHover;
+    const ImGuiMenuColumns* offsets = &window->DC.MenuColumns;
+    if (window->DC.LayoutType == ImGuiLayoutType_Horizontal) {
+        // Mimic the exact layout spacing of BeginMenu() to allow MenuItem() inside a menu bar, which is a little misleading but may be useful
+        // Note that in this situation: we don't render the shortcut, we render a highlight instead of the selected tick mark.
+        float w = label_size.x;
+        window->DC.CursorPos.x += IM_TRUNC(style.ItemSpacing.x * 0.5f);
+        ImVec2 text_pos(window->DC.CursorPos.x + offsets->OffsetLabel, window->DC.CursorPos.y + window->DC.CurrLineTextBaseOffset);
+        PushStyleVarX(ImGuiStyleVar_ItemSpacing, style.ItemSpacing.x * 2.0f);
+        pressed = Selectable("", selected, selectable_flags, ImVec2(w, 0.0f));
+        PopStyleVar();
+        if (g.LastItemData.StatusFlags & ImGuiItemStatusFlags_Visible)
+            RenderText(text_pos, label);
+        window->DC.CursorPos.x += IM_TRUNC(style.ItemSpacing.x * (-1.0f + 0.5f)); // -1 spacing to compensate the spacing added when Selectable() did a SameLine(). It would also work to call SameLine() ourselves after the PopStyleVar().
+    } else {
+        // Menu item inside a vertical menu
+        // (In a typical menu window where all items are BeginMenu() or MenuItem() calls, extra_w will always be 0.0f.
+        //  Only when they are other items sticking out we're going to add spacing, yet only register minimum width into the layout system.)
+        float icon_w = icon_size.x;
+        float shortcut_w = (shortcut && shortcut[0]) ? CalcTextSize(shortcut, NULL).x : 0.0f;
+        float checkmark_w = IM_TRUNC(g.FontSize * 1.20f);
+        float min_w = window->DC.MenuColumns.DeclColumns(icon_w, label_size.x, shortcut_w, checkmark_w); // Feedback for next frame
+        float stretch_w = ImMax(0.0f, GetContentRegionAvail().x - min_w);
+        ImVec2 text_pos(pos.x, pos.y + window->DC.CurrLineTextBaseOffset);
+        pressed = Selectable("", false, selectable_flags | ImGuiSelectableFlags_SpanAvailWidth, ImVec2(min_w, label_size.y));
+        if (g.LastItemData.StatusFlags & ImGuiItemStatusFlags_Visible) {
+            RenderText(text_pos + ImVec2(offsets->OffsetLabel, 0.0f), label);
+            if (icon_w > 0.0f) {
+                ImVec2 p = text_pos + ImVec2(offsets->OffsetIcon, 0.0f);
+                window->DrawList->AddImage(icon, p, p + icon_size, uv0, uv1, GetColorU32(tint_col));
+            }
+
+            if (shortcut_w > 0.0f) {
+                PushStyleColor(ImGuiCol_Text, style.Colors[ImGuiCol_TextDisabled]);
+                LogSetNextTextDecoration("(", ")");
+                RenderText(text_pos + ImVec2(offsets->OffsetShortcut + stretch_w, 0.0f), shortcut, NULL, false);
+                PopStyleColor();
+            }
+
+            if (selected)
+                RenderCheckMark(window->DrawList, text_pos + ImVec2(offsets->OffsetMark + stretch_w + g.FontSize * 0.40f, g.FontSize * 0.134f * 0.5f), GetColorU32(ImGuiCol_Text), g.FontSize * 0.866f);
+        }
+    }
+    IMGUI_TEST_ENGINE_ITEM_INFO(g.LastItemData.ID, label, g.LastItemData.StatusFlags | ImGuiItemStatusFlags_Checkable | (selected ? ImGuiItemStatusFlags_Checked : 0));
+    if (!enabled)
+        EndDisabled();
+    PopID();
+    if (menuset_is_open)
+        PopItemFlag();
+
+    return pressed;
+}
+
+bool ImGui::MenuItemImage(const char* label, ImTextureRef icon, const ImVec2 icon_size, const char* shortcut, bool selected, bool enabled, const ImVec2& uv0, const ImVec2& uv1, const ImVec4& tint ) {
+    return MenuItemImageEx(label, icon, icon_size, shortcut, selected, enabled, uv0, uv1, tint);
+}
+
+bool ImGui::MenuItemImage(const char* label, ImTextureRef icon, const ImVec2 icon_size, const char* shortcut, bool* p_selected, bool enabled, const ImVec2& uv0, const ImVec2& uv1, const ImVec4& tint) {
+    if (MenuItemImageEx(label, icon, icon_size, shortcut, p_selected ? *p_selected : false, enabled, uv0, uv1, tint)) {
+        if (p_selected)
+            *p_selected = !*p_selected;
+        return true;
+    }
+    return false;
+}
+
+
+
 bool ImGui::MenuItem(const char* label, const char* shortcut, bool selected, bool enabled)
 {
     return MenuItemEx(label, NULL, shortcut, selected, enabled);
