@@ -21,14 +21,20 @@ project "ImGui"
         "imstb_truetype.h",
         "backends/imgui_impl_glfw.h",
         "backends/imgui_impl_glfw.cpp",
-        "backends/imgui_impl_opengl3.h",
-        "backends/imgui_impl_opengl3.cpp"
+        "backends/imgui_impl_vulkan.h",
+        "backends/imgui_impl_vulkan.cpp"
 	}
 
     includedirs {
         ".",
         "backends",
-        INCLUDE_DIRS["glfw"]
+        INCLUDE_DIRS["glfw"],
+        INCLUDE_DIRS["vulkan"]
+    }
+
+    links {
+        "GLFW",
+        LIBRARY["vulkan"]
     }
 
 	filter "system:windows"
